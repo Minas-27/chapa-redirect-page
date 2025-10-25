@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Completed - DagaMeter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      max-width: 400px;
+      width: 90%;
+    }
+    
+    h2 {
+      color: #4CAF50;
+      margin-bottom: 10px;
+    }
+    
+    p {
+      color: #666;
+      margin-bottom: 25px;
+    }
+    
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 8px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>✅ Payment Completed!</h2>
+    <p>Thank you for your payment. Click below to return to DagaMeter app.</p>
+    <button id="openAppBtn">Open DagaMeter</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const txRef = urlParams.get("tx_ref");
+    const status = urlParams.get("status");
+
+    console.log("Payment Details:", { txRef, status });
+    
+    document.getElementById("openAppBtn").addEventListener("click", function() {
+      // Redirect to your app
+      window.location.href = `dagameter://payment?status=${status || 'success'}&tx_ref=${txRef || 'unknown'}`;
+      
+      // Try to close the browser tab after redirect
+      setTimeout(() => {
+        try {
+          window.close();
+        } catch (e) {
+          console.log("Could not close window automatically");
+        }
+      }, 500);
+    });
+
+    // Optional: Auto-click button after 3 seconds
+    setTimeout(() => {
+      document.getElementById('openAppBtn').click();
+    }, 3000);
+  </script>
+</body>
+</html>

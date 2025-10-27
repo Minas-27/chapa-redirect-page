@@ -3,39 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Completed - DagaMeter</title>
+  <title>Payment Completed</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      margin: 100px 20px;
     }
-    
-    .container {
-      background: white;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      max-width: 400px;
-      width: 90%;
-    }
-    
-    h2 {
-      color: #4CAF50;
-      margin-bottom: 10px;
-    }
-    
-    p {
-      color: #666;
-      margin-bottom: 25px;
-    }
-    
     button {
       padding: 15px 30px;
       font-size: 18px;
@@ -44,46 +18,72 @@
       background-color: #4CAF50;
       color: white;
       border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    
-    button:hover {
-      background-color: #45a049;
+      margin: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>✅ Payment Completed!</h2>
-    <p>Thank you for your payment. Click below to return to DagaMeter app.</p>
-    <button id="openAppBtn">Open DagaMeter</button>
-  </div>
+  <h2>✅ Payment Completed!</h2>
+  <p id="message">Returning to DagaMeter...</p>
+  <button id="openAppBtn">Open App Now</button>
+  <button id="closeBtn" style="background-color: #666;">Close Tab</button>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const txRef = urlParams.get("tx_ref");
     const status = urlParams.get("status");
 
-    console.log("Payment Details:", { txRef, status });
-    
-    document.getElementById("openAppBtn").addEventListener("click", function() {
-      // Redirect to your app
+    function openApp() {
+      console.log("Opening DagaMeter app...");
+      
+      // Method 1: Try to open app
       window.location.href = `dagameter://payment?status=${status || 'success'}&tx_ref=${txRef || 'unknown'}`;
       
-      // Try to close the browser tab after redirect
+      // Method 2: For Android - try multiple approaches
       setTimeout(() => {
+        // Try window.close() first
         try {
           window.close();
+          console.log("Window close attempted");
         } catch (e) {
-          console.log("Could not close window automatically");
+          console.log("Window close failed:", e);
+          
+          // Fallback: redirect to blank page (destroys history)
+          window.location.replace('about:blank');
         }
-      }, 500);
-    });
+      }, 300);
+    }
 
-    // Optional: Auto-click button after 3 seconds
-    setTimeout(() => {
-      document.getElementById('openAppBtn').click();
-    }, 3000);
+    function closeTab() {
+      // Direct close attempt
+      try {
+        window.close();
+      } catch (e) {
+        // If cannot close, at least go to blank page
+        window.location.replace('about:blank');
+      }
+    }
+
+    // Auto-redirect immediately
+    setTimeout(openApp, 1000);
+    
+    // Manual buttons
+    document.getElementById('openAppBtn').addEventListener('click', openApp);
+    document.getElementById('closeBtn').addEventListener('click', closeTab);
+
+    // Additional Android trick: close when page becomes hidden
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        console.log("Page hidden - user switched to app");
+        setTimeout(() => {
+          try {
+            window.close();
+          } catch (e) {
+            // Ignore errors when closing hidden page
+          }
+        }, 1000);
+      }
+    });
   </script>
 </body>
 </html>
